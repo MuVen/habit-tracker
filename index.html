@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habit Tracker — Build Better Routines</title>
+  <meta name="description" content="Track daily habits, build streaks, visualize progress. Free, open-source habit tracker with smart scheduling." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://accounts.google.com/gsi/client" async></script>
+  <script src="auth.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: { 50:'#EEF2FF',100:'#E0E7FF',200:'#C7D2FE',300:'#A5B4FC',400:'#818CF8',500:'#6366F1',600:'#4F46E5',700:'#4338CA',800:'#3730A3',900:'#312E81' },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* Hero gradient mesh */
+    .hero-gradient {
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 60%, rgba(16,185,129,0.1), transparent),
+        radial-gradient(ellipse 50% 30% at 20% 80%, rgba(249,115,22,0.08), transparent);
+    }
+    /* Floating animation */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    .float-1 { animation: float 6s ease-in-out infinite; }
+    .float-2 { animation: float 7s ease-in-out 1s infinite; }
+    .float-3 { animation: float 5s ease-in-out 2s infinite; }
+    /* Pulse ring on CTA */
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); }
+      70% { box-shadow: 0 0 0 14px rgba(99,102,241,0); }
+      100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+    }
+    .pulse-cta { animation: pulse-ring 2.5s infinite; }
+    /* Entrance */
+    @keyframes fade-up {
+      from { opacity:0; transform: translateY(24px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .fade-up { animation: fade-up 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fade-up-d1 { animation-delay: 0.1s; }
+    .fade-up-d2 { animation-delay: 0.2s; }
+    .fade-up-d3 { animation-delay: 0.35s; }
+    .fade-up-d4 { animation-delay: 0.5s; }
+    /* Grid pattern */
+    .grid-pattern {
+      background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    /* Feature card hover */
+    .feature-card { transition: transform 0.2s, box-shadow 0.2s; }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px -12px rgba(0,0,0,0.12); }
+    /* Smooth scroll */
+    html { scroll-behavior: smooth; }
+    /* Google button wrapper */
+    #g_id_onload, .g_id_signin { display: inline-block; }
+  </style>
+</head>
+<body class="min-h-screen bg-white font-sans text-gray-900 antialiased">
+
+  <!-- Nav -->
+  <nav class="fixed top-0 z-50 w-full border-b border-gray-100 bg-white/70 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
+      <div class="flex items-center gap-2.5">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-md shadow-brand-500/20">
+          <i data-lucide="target" class="h-4 w-4"></i>
+        </div>
+        <span class="text-[17px] font-bold tracking-tight">Habit Tracker</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="#features" class="hidden text-sm font-medium text-gray-500 transition hover:text-gray-900 sm:block">Features</a>
+        <a href="#how" class="hidden text-sm font-medium text-gray-500 transition hover:text-gray-900 sm:block">How it Works</a>
+        <a href="#signin" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 active:scale-[0.97]">
+          Get Started
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-gradient relative overflow-hidden pt-28 pb-20 sm:pt-36 sm:pb-28">
+    <div class="grid-pattern pointer-events-none absolute inset-0 opacity-40"></div>
+    <!-- Floating shapes -->
+    <div class="pointer-events-none absolute left-[10%] top-[15%] float-1 h-16 w-16 rounded-2xl bg-brand-200/50 blur-sm"></div>
+    <div class="pointer-events-none absolute right-[12%] top-[25%] float-2 h-12 w-12 rounded-full bg-emerald-200/50 blur-sm"></div>
+    <div class="pointer-events-none absolute left-[60%] bottom-[20%] float-3 h-14 w-14 rounded-xl bg-amber-200/40 blur-sm"></div>
+
+    <div class="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
+      <div class="fade-up mb-5 inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-4 py-1.5 text-[13px] font-medium text-brand-700">
+        <i data-lucide="sparkles" class="h-3.5 w-3.5"></i>
+        Free &amp; Open Source
+      </div>
+
+      <h1 class="fade-up fade-up-d1 mx-auto max-w-3xl text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-6xl lg:text-7xl">
+        Build habits that
+        <span class="bg-gradient-to-r from-brand-600 via-brand-500 to-emerald-500 bg-clip-text text-transparent">actually stick</span>
+      </h1>
+
+      <p class="fade-up fade-up-d2 mx-auto mt-5 max-w-xl text-base leading-relaxed text-gray-500 sm:text-lg">
+        Track daily routines, build streaks, visualize your progress with beautiful charts. Smart scheduling for daily, alternate, and custom-day habits.
+      </p>
+
+      <!-- Sign-In CTA -->
+      <div class="fade-up fade-up-d3 mt-8 flex flex-col items-center gap-4" id="signin">
+        <div id="g_id_onload"
+          data-client_id="YOUR_CLIENT_ID.apps.googleusercontent.com"
+          data-context="signin"
+          data-ux_mode="popup"
+          data-callback="handleGoogleCallback"
+          data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+          data-type="standard"
+          data-shape="pill"
+          data-theme="outline"
+          data-text="continue_with"
+          data-size="large"
+          data-logo_alignment="left"
+          data-width="280">
+        </div>
+
+        <!-- Fallback / demo button -->
+        <button onclick="demoSignIn()" class="pulse-cta rounded-xl bg-brand-600 px-8 py-3.5 text-[15px] font-bold text-white shadow-lg shadow-brand-500/25 transition hover:bg-brand-700 hover:shadow-xl active:scale-[0.97]">
+          <span class="flex items-center gap-2">
+            <i data-lucide="rocket" class="h-5 w-5"></i>
+            Try Demo — No Sign-In
+          </span>
+        </button>
+        <p class="text-xs text-gray-400">No credit card · No spam · 100% free</p>
+      </div>
+    </div>
+
+    <!-- Dashboard Preview -->
+    <div class="fade-up fade-up-d4 relative mx-auto mt-14 max-w-5xl px-4 sm:px-6">
+      <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl shadow-gray-300/30">
+        <div class="flex items-center gap-1.5 border-b border-gray-100 bg-gray-50 px-4 py-2.5">
+          <span class="h-3 w-3 rounded-full bg-red-400"></span>
+          <span class="h-3 w-3 rounded-full bg-amber-400"></span>
+          <span class="h-3 w-3 rounded-full bg-emerald-400"></span>
+          <span class="ml-3 text-xs font-medium text-gray-400">Habit Tracker — Dashboard</span>
+        </div>
+        <div class="grid grid-cols-4 gap-3 p-4 sm:p-6">
+          <div class="rounded-lg border border-gray-100 bg-gray-50 p-3">
+            <div class="mb-2 flex h-6 w-6 items-center justify-center rounded-md bg-amber-100 text-amber-600"><i data-lucide="flame" class="h-3 w-3"></i></div>
+            <p class="text-lg font-extrabold">12</p>
+            <p class="text-[10px] text-gray-400 uppercase">Day Streak</p>
+          </div>
+          <div class="rounded-lg border border-gray-100 bg-gray-50 p-3">
+            <div class="mb-2 flex h-6 w-6 items-center justify-center rounded-md bg-emerald-100 text-emerald-600"><i data-lucide="check-circle-2" class="h-3 w-3"></i></div>
+            <p class="text-lg font-extrabold">6/8</p>
+            <p class="text-[10px] text-gray-400 uppercase">Done Today</p>
+          </div>
+          <div class="rounded-lg border border-gray-100 bg-gray-50 p-3">
+            <div class="mb-2 flex h-6 w-6 items-center justify-center rounded-md bg-brand-100 text-brand-600"><i data-lucide="trending-up" class="h-3 w-3"></i></div>
+            <p class="text-lg font-extrabold">87%</p>
+            <p class="text-[10px] text-gray-400 uppercase">Weekly Rate</p>
+          </div>
+          <div class="rounded-lg border border-gray-100 bg-gray-50 p-3">
+            <div class="mb-2 flex h-6 w-6 items-center justify-center rounded-md bg-purple-100 text-purple-600"><i data-lucide="trophy" class="h-3 w-3"></i></div>
+            <p class="text-lg font-extrabold">21</p>
+            <p class="text-[10px] text-gray-400 uppercase">Best Streak</p>
+          </div>
+        </div>
+        <!-- Fake habit rows -->
+        <div class="space-y-2 px-4 pb-5 sm:px-6">
+          <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2">
+            <div class="flex h-7 w-7 items-center justify-center rounded-md bg-purple-50 text-purple-600"><i data-lucide="brain" class="h-3.5 w-3.5"></i></div>
+            <span class="text-[13px] font-semibold">Morning Meditation</span>
+            <span class="ml-auto flex gap-1">
+              <span class="h-5 w-5 rounded bg-purple-500"></span>
+              <span class="h-5 w-5 rounded bg-purple-500"></span>
+              <span class="h-5 w-5 rounded bg-purple-500"></span>
+              <span class="h-5 w-5 rounded bg-gray-100"></span>
+              <span class="h-5 w-5 rounded bg-purple-500"></span>
+            </span>
+          </div>
+          <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2">
+            <div class="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-50 text-emerald-600"><i data-lucide="dumbbell" class="h-3.5 w-3.5"></i></div>
+            <span class="text-[13px] font-semibold">Exercise 30 min</span>
+            <span class="ml-auto flex gap-1">
+              <span class="h-5 w-5 rounded bg-emerald-500"></span>
+              <span class="h-5 w-5 rounded bg-gray-100"></span>
+              <span class="h-5 w-5 rounded bg-emerald-500"></span>
+              <span class="h-5 w-5 rounded bg-emerald-500"></span>
+              <span class="h-5 w-5 rounded bg-emerald-500"></span>
+            </span>
+          </div>
+          <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2">
+            <div class="flex h-7 w-7 items-center justify-center rounded-md bg-blue-50 text-blue-600"><i data-lucide="book-open" class="h-3.5 w-3.5"></i></div>
+            <span class="text-[13px] font-semibold">Read 20 pages</span>
+            <span class="ml-auto flex gap-1">
+              <span class="h-5 w-5 rounded bg-blue-500"></span>
+              <span class="h-5 w-5 rounded bg-blue-500"></span>
+              <span class="h-5 w-5 rounded bg-blue-500"></span>
+              <span class="h-5 w-5 rounded bg-blue-500"></span>
+              <span class="h-5 w-5 rounded bg-gray-100"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="py-20 sm:py-28">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <div class="mb-14 text-center">
+        <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-brand-600">Features</p>
+        <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Everything you need to stay consistent</h2>
+      </div>
+      <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="feature-card rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-sm">
+            <i data-lucide="flame" class="h-5 w-5"></i>
+          </div>
+          <h3 class="mb-1.5 text-[15px] font-bold">Streak Tracking</h3>
+          <p class="text-sm leading-relaxed text-gray-500">Build momentum with day streaks. See your current and best streak at a glance.</p>
+        </div>
+        <div class="feature-card rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-sm">
+            <i data-lucide="calendar-check" class="h-5 w-5"></i>
+          </div>
+          <h3 class="mb-1.5 text-[15px] font-bold">Smart Scheduling</h3>
+          <p class="text-sm leading-relaxed text-gray-500">Daily, alternate days, or pick specific weekdays. Habits only appear when scheduled.</p>
+        </div>
+        <div class="feature-card rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-sm">
+            <i data-lucide="bar-chart-3" class="h-5 w-5"></i>
+          </div>
+          <h3 class="mb-1.5 text-[15px] font-bold">Visual Analytics</h3>
+          <p class="text-sm leading-relaxed text-gray-500">30-day trend charts, per-habit performance bars, and GitHub-style contribution heatmaps.</p>
+        </div>
+        <div class="feature-card rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-rose-400 to-rose-600 text-white shadow-sm">
+            <i data-lucide="palette" class="h-5 w-5"></i>
+          </div>
+          <h3 class="mb-1.5 text-[15px] font-bold">Custom Colors &amp; Icons</h3>
+          <p class="text-sm leading-relaxed text-gray-500">Personalize each habit with 10 colors and 20 icons. Dark mode included.</p>
+        </div>
+        <div class="feature-card rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-600 text-white shadow-sm">
+            <i data-lucide="shield-check" class="h-5 w-5"></i>
+          </div>
+          <h3 class="mb-1.5 text-[15px] font-bold">Privacy First</h3>
+          <p class="text-sm leading-relaxed text-gray-500">All data stays in your browser. No servers, no tracking, no data collection.</p>
+        </div>
+        <div class="feature-card rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 text-white shadow-sm">
+            <i data-lucide="smartphone" class="h-5 w-5"></i>
+          </div>
+          <h3 class="mb-1.5 text-[15px] font-bold">Fully Responsive</h3>
+          <p class="text-sm leading-relaxed text-gray-500">Works beautifully on desktop, tablet, and mobile. Use it anywhere.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how" class="border-t border-gray-100 bg-gray-50 py-20 sm:py-28">
+    <div class="mx-auto max-w-4xl px-4 text-center sm:px-6">
+      <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-brand-600">How it Works</p>
+      <h2 class="mb-14 text-3xl font-extrabold tracking-tight sm:text-4xl">Three steps to better habits</h2>
+      <div class="grid gap-8 sm:grid-cols-3">
+        <div>
+          <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-700 text-xl font-extrabold">1</div>
+          <h3 class="mb-1.5 text-[15px] font-bold">Add your habits</h3>
+          <p class="text-sm text-gray-500">Define what you want to track, set the schedule and time.</p>
+        </div>
+        <div>
+          <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 text-xl font-extrabold">2</div>
+          <h3 class="mb-1.5 text-[15px] font-bold">Check off daily</h3>
+          <p class="text-sm text-gray-500">One tap to mark a habit done. Build streaks and stay consistent.</p>
+        </div>
+        <div>
+          <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 text-xl font-extrabold">3</div>
+          <h3 class="mb-1.5 text-[15px] font-bold">Track progress</h3>
+          <p class="text-sm text-gray-500">See trends, streaks, and analytics to stay motivated.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 sm:py-28">
+    <div class="mx-auto max-w-2xl px-4 text-center sm:px-6">
+      <h2 class="mb-4 text-3xl font-extrabold tracking-tight sm:text-4xl">Ready to build better routines?</h2>
+      <p class="mb-8 text-gray-500">Join now — it's free, private, and takes 10 seconds.</p>
+      <button onclick="demoSignIn()" class="pulse-cta inline-flex items-center gap-2 rounded-xl bg-brand-600 px-8 py-3.5 text-[15px] font-bold text-white shadow-lg shadow-brand-500/25 transition hover:bg-brand-700 hover:shadow-xl active:scale-[0.97]">
+        <i data-lucide="rocket" class="h-5 w-5"></i>
+        Get Started Free
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-100 py-8">
+    <div class="mx-auto max-w-6xl px-4 text-center sm:px-6">
+      <div class="flex items-center justify-center gap-2 text-sm text-gray-400">
+        <div class="flex h-5 w-5 items-center justify-center rounded bg-brand-600 text-white">
+          <i data-lucide="target" class="h-3 w-3"></i>
+        </div>
+        Habit Tracker · Built with <i data-lucide="heart" class="mx-0.5 h-3 w-3 text-red-400"></i> ·
+        <a href="https://github.com/vemunuku/habit-tracker" class="underline transition hover:text-gray-600">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // If user is already signed in, redirect to dashboard
+    if (getUser()) {
+      window.location.href = 'dashboard.html';
+    }
+
+    // Demo sign-in (no Google required)
+    function demoSignIn() {
+      setUser({
+        name: 'Demo User',
+        email: 'demo@habittracker.app',
+        picture: '',
+        sub: 'demo',
+      });
+      window.location.href = 'dashboard.html';
+    }
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>
