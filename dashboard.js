@@ -710,57 +710,48 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeModal();
 });
 
-// Seed user habits — version-controlled to allow re-seeding on update
-const SEED_VERSION = 3;
+// Seed default habits for new users
+const SEED_VERSION = 4;
 function seedDemoData() {
   const seeded = localStorage.getItem('habit-seed-version');
-  if (seeded === String(SEED_VERSION)) return;
+  // Only seed for brand new users (no existing data AND no seed flag)
+  if (seeded || state.habits.length > 0) return;
 
   // Day index: Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
-  const myHabits = [
+  const defaultHabits = [
     {
-      id: 'h_pooja', name: 'Pooja by 6 AM', icon: 'sparkles', color: '#D97706',
-      frequency: 'daily', timeSlot: '5:30 – 6:00 AM',
+      id: 'h_exercise', name: 'Exercise 30 min', icon: 'dumbbell', color: '#059669',
+      frequency: 'daily', timeSlot: '30 min',
       createdAt: todayKey(),
     },
     {
-      id: 'h_office', name: 'Office 8:30–5:30', icon: 'briefcase', color: '#2563EB',
-      frequency: 'custom', customDays: [0, 1, 2, 3, 4], timeSlot: '8:30 AM – 5:30 PM',
+      id: 'h_reading', name: 'Read 20 pages', icon: 'book-open', color: '#2563EB',
+      frequency: 'daily', timeSlot: '30 min',
       createdAt: todayKey(),
     },
     {
-      id: 'h_walking', name: 'Walking — 400 Cal', icon: 'footprints', color: '#059669',
-      frequency: 'daily', timeSlot: '1 hr daily',
+      id: 'h_meditate', name: 'Meditate', icon: 'brain', color: '#7C3AED',
+      frequency: 'daily', timeSlot: '10 min · Morning',
       createdAt: todayKey(),
     },
     {
-      id: 'h_sysdesign', name: 'System Design', icon: 'book-open', color: '#7C3AED',
-      frequency: 'custom', customDays: [1, 2, 3, 4], timeSlot: '1 hr · 45 day goal',
+      id: 'h_water', name: 'Drink 8 glasses water', icon: 'droplets', color: '#0891B2',
+      frequency: 'daily', timeSlot: 'Throughout the day',
       createdAt: todayKey(),
     },
     {
-      id: 'h_leetcode', name: 'LeetCode', icon: 'code', color: '#DB2777',
-      frequency: 'custom', customDays: [1, 2, 3, 4], timeSlot: '45 min',
+      id: 'h_journal', name: 'Journal', icon: 'pen-line', color: '#D97706',
+      frequency: 'daily', timeSlot: '15 min · Evening',
       createdAt: todayKey(),
     },
     {
-      id: 'h_stockmarket', name: 'Stock Market Reading', icon: 'trending-up', color: '#CA8A04',
-      frequency: 'custom', customDays: [5, 6], timeSlot: '2 hrs · Sat & Sun',
-      createdAt: todayKey(),
-    },
-    {
-      id: 'h_aiml', name: 'AI/ML Reading', icon: 'bot', color: '#4F46E5',
-      frequency: 'custom', customDays: [0], timeSlot: '2 hrs · Monday',
-      createdAt: todayKey(),
-    },
-    {
-      id: 'h_sleep', name: 'Sleep by 10:30 PM', icon: 'bed-double', color: '#0891B2',
+      id: 'h_sleep', name: 'Sleep by 10:30 PM', icon: 'bed-double', color: '#DB2777',
       frequency: 'daily', timeSlot: 'By 10:30 PM',
       createdAt: todayKey(),
     },
   ];
 
-  state.habits = myHabits;
+  state.habits = defaultHabits;
   state.completions = {};
 
   // Seed some sample completions for past 6 days
@@ -770,8 +761,8 @@ function seedDemoData() {
     d.setDate(today.getDate() - i);
     const key = dateKey(d);
     state.completions[key] = [];
-    myHabits.forEach(h => {
-      if (isScheduledFor(h, d) && Math.random() > 0.25) {
+    defaultHabits.forEach(h => {
+      if (isScheduledFor(h, d) && Math.random() > 0.3) {
         state.completions[key].push(h.id);
       }
     });
