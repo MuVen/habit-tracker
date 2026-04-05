@@ -38,6 +38,44 @@ function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+// Export habits + completions as JSON download
+function exportData() {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `habits-backup-${todayKey()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Import habits + completions from JSON file
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.habits || !Array.isArray(data.habits)) {
+        alert('Invalid file — expected a habits backup JSON.');
+        return;
+      }
+      state.habits = data.habits;
+      state.completions = data.completions || {};
+      saveState();
+      render();
+    } catch {
+      alert('Failed to parse file. Make sure it is a valid JSON backup.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = ''; // reset so same file can be re-imported
+}
+
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
 }

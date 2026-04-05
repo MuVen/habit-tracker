@@ -51,6 +51,13 @@
           <i data-lucide="plus" class="h-4 w-4"></i>
           <span class="hidden sm:inline">New Habit</span>
         </button>
+        <button onclick="exportData()" class="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800" aria-label="Export data" title="Export habits to JSON">
+          <i data-lucide="download" class="h-[18px] w-[18px]"></i>
+        </button>
+        <label class="cursor-pointer rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800" aria-label="Import data" title="Import habits from JSON">
+          <i data-lucide="upload" class="h-[18px] w-[18px]"></i>
+          <input type="file" accept=".json" onchange="importData(event)" class="hidden" />
+        </label>
         <div class="ml-1 flex items-center gap-2">
           <img id="user-avatar" src="" alt="" class="h-8 w-8 rounded-full border-2 border-gray-200 object-cover dark:border-gray-700" style="display:none" />
           <button id="sign-out-btn" onclick="signOut()" class="rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950" aria-label="Sign out" title="Sign out">
